@@ -1,0 +1,15 @@
+a b c d
+
+E(1, 4, Alice) ---> (1/2) [arr[1] + E(2, 4, Bob) + arr[4] + E(1, 3, Bob)]
+E(2, 4, Bob) ---> (1/2) [E(3, 4, Alice) + E(2, 3, Alice)]
+O(2^n)
+
+dp[i][i][Alice] = arr[i]
+dp[i][i][Bob] = 0
+
+(dp stores the expected value of Alice)
+
+dp[i][j][Alice] = (0.5) * dp[i+1][j][Bob] + arr[i] + arr[j] + dp[i][j-1][Bob]
+dp[i][j][Bob] = (0.5) * dp[i+1][j][Alice] + dp[i][j-1][Alice]
+
+dp[1][n][Alice]

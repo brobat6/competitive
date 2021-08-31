@@ -1,0 +1,458 @@
+
+<!-- saved from url=(0089)https://competitive-marks.herokuapp.com/marks/storage/day_files/day7/3.%20AVL%20Tree.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head><body bgcolor="#FFFFF0">
+
+<h2>AVL Trees</h2>
+
+
+<p>
+An ordered tree (binary search tree) is used when we wish to store
+objects with (numerical) keys in a binary tree so that
+lookups can be done in order <em>log<sub>2</sub>N</em> time, where
+<em>N</em> is the number of objects in the tree.
+But an ordered tree that is seriously ``unbalanced,'' that is, where
+paths from the root to the leaves have dramatically different
+lengths, will ruin the desired lookup behavior.
+
+</p><p>
+The worst-case example of an unbalanced ordered tree is the tree
+built by inserting a <em>sorted</em> sequence of objects
+(we show the numerical keys only;
+the objects attached with the keys are unimportant):
+</p><pre>1 2 3 4
+</pre>
+The tree looks like this:
+<pre>   1
+  / \
+ .   2
+    / \
+   .   3
+      / \
+     .   4
+        / \
+       .   .
+</pre>
+Obviously, a lookup in this tree is just a linear search, which is slower
+than log-time.
+
+<p>
+How can we maintain an ordered tree so that, regardless of the order of
+insertions, the tree remains balanced?  There are several sophisticated
+technques for doing so; here we consider one of the most elegant,
+<em>AVL trees</em>.
+
+</p><h4>Definition of an AVL tree</h4>
+
+An AVL-tree is an ordered tree that has the <em>height-balanced property.</em>
+Here are the basic definitions:
+
+<dl>
+<dd>
+The <em>height</em> of a tree is the length of the longest path from
+the tree's root to one of its leaves.
+</dd><dd>
+<p>
+A Node is <em>balanced</em> if the height of its left subtree is
+plus-or-minus-one the height of its right subtree.
+</p></dd><dd>
+<p>
+A binary tree has the <em>height-balanced property</em>
+if all of its Nodes are balanced.
+</p></dd></dl>
+
+<p>
+Here is an example of an AVL-tree, whose root holds 44:
+</p><pre>          44
+      /         \
+    17           78
+   /  \         /  \
+  .   32      50    88
+      / \    /  \   / \
+     .   .  48  62 .  .
+           / \ / \
+          .  . .  .
+</pre>
+For clarity, we redraw the tree and write the heights next to each Node,
+in parentheses:
+<pre>         44(4) 
+      /         \
+    17(2)        78(3)
+   /  \         /    \
+  .  32(1)   50(2)    88(1)
+      / \    /  \      / \
+     .   . 48(1) 62(1) .  .
+           / \   / \
+          .  .  .  .
+</pre>
+Notice that, for every node in the tree, the heights of its subtrees
+are the same, plus-or-minus one.
+
+<p>
+(By the way, the initials, ``AVL,'' denote the two Russian researchers,
+G.M. Adel'son-Vel'skii and Y.M. Landis, who developed the key definitions
+and algorithms for the tree format.)
+
+</p><p>
+The example shows that an AVL-tree is not ``exactly'' balanced, or
+complete (like a heap), but it is ``balanced well enough''.
+Here is the reason why is it is ``well enough'':
+
+</p><dl>
+<dd>
+An AVL-tree with <em>N</em> nodes has a height that is <em>less than</em>
+<em>(2 log<sub>2</sub>N) + 2</em>.
+</dd></dl>
+This implies that a lookup takes on the order of <em>log<sub>2</sub>N</em>
+node comparisons.  A lookup in a complete ordered tree, where the
+balancing is perfect, would take, at worst,
+<em>(log<sub>2</sub>N)+1</em> comparisons.  So, an AVL-tree is only
+twice as ``slow'' as the optimal ordered tree --- this is still very good!
+
+<p>
+(For example, if the tree held 2048 objects, then lookup in a complete
+tree takes 12 comparisons, worst case, whereas AVL lookup takes 24
+comparisons, worst case.  Linear search would take 1024 comparisons,
+on average, and 2048 comparisons, in worst case.)
+
+</p><h4>Insertion into AVL-trees: Insertion then Rotation</h4>
+
+We must find an efficient way to do an insertion into an AVL-tree that
+preserves orderedness and the height-balanced property.  Our strategy
+will be to do an insertion in the usual, naive way, and then rebuild
+the tree to recover the height-balanced property.
+The second step is called <em>rotation</em>.
+
+<p>
+Let's reconsider the above tree and insert 54 into it.
+We know how to perform insertion into ordered trees, and this gives us:
+</p><pre>         44(5)! 
+      /         \
+    17(2)        78(4)!
+   /  \         /    \
+  .  32(1)   50(3)    88(1)
+      / \    /  \      / \
+     .   . 48(1) 62(2) .  .
+           / \   /  \
+          .  .  54(1) .
+               /  \
+              .    .
+</pre>
+Again, the heights are listed next to the nodes.  
+The insertion of 54 has made unbalanced the two
+nodes marked by <tt>!</tt> --- they do not have
+the height-balanced property.  
+In general, many nodes, <em>all located along the path from the
+root to the insertion position</em>, might have their heights changed
+and become unbalanced.
+We must rebuild the tree so that the unbalanced nodes become balanced
+again.
+
+<h4>A general picture of an imbalance</h4>
+
+Why did the above AVL tree become unbalanced?
+Some careful thinking will convince us that an insertion generates
+an unbalanced node when the inserted number is placed in a subtree
+that is already ``full'' and already has a height that is one greater
+than its sibling tree.
+
+<p>
+A general diagram of the problematic situation looks like this:
+Say that an AVL tree has a subtree, Z, that has two differently
+heighted subtrees, and say that the larger-height subtree, Y, is ``full'':
+</p><pre>      root
+     /    \
+    .      .
+   .        .
+             Z(n+2)
+           /     \
+          *(n)   Y(n+1)
+         / \     /  \
+                *(n) *(n)
+                /\   /\
+</pre>
+(As usual, we write the heights in parentheses next to the nodes.
+Subtree <tt>Y</tt> is``full'' in the sense that both of its subtrees
+have the same height, and adding one more value to a subtree will cause the 
+subtree's height
+to increase.)
+Say that we must
+insert a new number, <tt>k</tt>, and the insertion places <tt>k</tt>
+inside subtree Y, and this generates an imbalance:
+<pre>      root
+     /    \
+    .      .
+   .        .
+             Z(n+3)!
+           /     \
+          *(n)   Y(n+2)
+         / \     /  \
+               *(n) *(n+1)
+                /\  /\
+                     k
+</pre>
+Subtree Y is still balanced, but since its height increased by one,
+this ruins Z's balance.
+
+
+<h4>Rotation</h4>
+
+The above diagram suggests that 
+``too many'' objects are placed within subtree Y; perhaps we can find
+a way of using some of the ``empty space'' within Z's left subtree
+and reducing Y's (and Z's) height downwards by one.  If we can do
+this, then we have rebalanced the tree.
+
+<p>
+Is it remarkable that we can repair the situation
+by moving --- <em>rotating</em> --- not <tt>k</tt> but
+the nodes above it.  Indeed, we will rotate <em>just three nodes</em>.
+
+</p><p>
+Here is the clever strategy:
+</p><ol>
+<li>
+Locate the unbalanced node closest to the insertion point;
+call it ``Node Z''.
+</li><li>
+Of Node Z's two subtrees, locate the subtree in which the insertion
+was done and call the root of this subtree,
+``Node Y.''
+</li><li>
+Of Node Y's two subtrees, locate the subtree in which the insertion
+was done and call the root of this subtree,
+``Node X.''  (Note that Node X might be the object just inserted.)
+</li></ol>
+For the earlier example,
+we have this arrangement: Node Z holds 78,
+Y holds 50, and X holds 62; here again is the example:
+<pre>         44(5)!
+      /         \
+    17(2)      Z78(4)!
+   /  \         /    \
+  .  32(1)  Y50(3)    88(2)
+      / \    /  \      / \
+     .   .48(1) X62(2) .  .
+           / \   /  \
+          .  .  54(1) .
+               /  \
+              .    .
+</pre>
+Here is a more general diagram of the situation, with node heights
+indicated in parentheses:
+<pre>             Z(n+3)!
+           /     \
+          *(n)   Y(n+2)
+         / \     /  \
+               *(n) X(n+1)
+                /\  /\
+                     k
+</pre>
+That is, the insertion of the new object has caused Node X's height to 
+increase by one, and this makes Node Y's height increase by one.
+(Node that Node X might itself be the new object, and note that
+Node Y is still balanced.  Hence, the heights must be related as shown.)
+The result is that Node Z's height has increased from
+<tt>n+2</tt> to <tt>n+3</tt> and is unbalanced.
+
+<p>
+Rather than try to move Node <tt>k</tt>, 
+our objective is to rearrange
+Nodes Z, Y, and X,
+so that the subtree
+becomes balanced again <em>and recovers the height of <tt>n+2</tt>,
+which it had prior to the insertion</em>.  All three nodes might be moved,
+but their subtrees, and the rest of the tree, will be unaltered.
+
+</p><p>
+Now remember that each of Nodes Z, Y, and X hold numerical values,
+and remember that the three nodes are arranged in a path, a linear
+sequence, in the tree, like this:
+</p><pre>   Node Z
+     \
+    Node Y
+      /
+   Node X
+</pre>
+To reduce the height of this structure, it makes sense to rearrange
+the three nodes into this pattern:
+<pre>        Node b 
+        /   \
+   Node a   Node c
+</pre>
+This would reduce the height by one!
+But which of Z, Y, X, should be Node b?  Node a?  Node c?
+
+<p>
+The answer is simple: We compare the values held in Nodes Z, Y, and X.
+The node that holds the smallest number will be ``Node a'';
+the node the holds the middle number will be ``Node b'';
+and the node the holds the largest number will be ``Node c''.
+
+</p><p>
+Another way of identifying Nodes a,b, and c  is to visually ``read''
+the tree from left to right; the leftmost node is Node a; the middle is Node b;
+and the rightmost is Node c.  (This left-to-right ``reading'' can be
+coded as an in-order tree traversal.)
+
+</p><p>
+The above picture is incomplete, because Nodes Z, Y, and X
+have their own subtrees.  We must label the 
+the four subtrees attached to Nodes a, b, and c,
+as T0, T1, T2, and T3.  Again, we can do this by ``reading'' the tree
+from left to right.
+
+</p><p>
+But here is a more precise statement of the algorithm:
+Given Nodes Z, Y, and X:
+</p><ol>
+<li>
+Attach the label, ``Node a'', to the Node that has the smallest value;
+attach the label, ``Node b'', to the Node that has the middle value;
+and attach the label, ``Node c'', to the Node that has the largest value;
+</li><li>
+Label Node a's left subtree, ``T0''.
+</li><li>
+If Node a's right subtree is not Node b, then label it ``T1'';
+else label Node b's left subtree ``T1''.
+</li><li>
+If Node b's right subtree is not Node c, then label it ``T2'';
+else label Node c's left subtree ``T2''.
+</li><li>
+Label Node c's right subtree, ``T3''.
+</li></ol>
+
+<p>
+Here is the labelling for the example:
+</p><pre>                 Z78c
+                /    \
+            Y50a      88T3
+             /  \      / \
+          48T0  X62b   .  .
+           / \  /  \
+          .  . 54T1 .T2
+              /  \
+              .    .
+</pre>
+Now, given Nodes a, b, c, 
+and given subtrees T0, T1, T2, T3,
+we rotate the nodes and reconnect them to their subtrees like this:
+<pre>                  b
+               /     \
+              a       c
+            /   \   /   \
+           T0   T1 T2   T3
+</pre>
+For the example, the result of the rotation looks like this:
+<pre>                  62b
+                /    \
+             50a       78c
+             /  \      / \
+          48T0  54T1  .T2 88T3
+           / \  /  \      /  \
+          .  . .    .    .    .
+</pre>
+If you carefully consider the algorithm we used to attach the labels,
+a, b, and c, and T0, T1, T2, and T3, you can verify that the
+rotated tree is still an ordered tree.  Further, you can visually
+verify that the height of the tree has been reduced by one!
+
+<h4>The four forms of rotation</h4>
+
+<p>
+To validate the reduction in height, we can draw diagrams of all the
+possible combinations of Nodes a,b, and c  that can arise, and
+we see that each rotation reduces the height of the root node by one.
+There are four cases:
+</p><pre>CASE 1:
+
+   Node Z a           ==&gt;           Y
+   /   \                         /     \
+  T0   Node Y b                 Z       X
+       /  \                    /  \    /  \
+      T1  Node X c            T0  T1  T2  T3
+          /  \
+         T2  T3
+</pre>
+<pre>CASE 2:
+
+    Node Z c           ==&gt;           Y
+   /        \                     /     \
+  Node Y b   T3                  X       Z
+  /       \                     /  \    /  \
+Node X a   T2                  T0  T1  T2  T3
+ /  \
+T0  T1
+</pre>
+<pre>CASE 3:
+
+   Node Z a           ==&gt;           X
+   /   \                         /     \
+  T0   Node Y c                 Z       Y
+       /    \                 /  \    /  \
+ Node X b    T3              T0  T1  T2  T3
+    /  \
+   T1  T2
+</pre>
+<pre>CASE 4:
+
+    Node Z c           ==&gt;           X
+   /        \                     /     \
+ Node Y a   T3                  Y       Z
+ /       \                     /  \    /  \
+T0    Node X b                T0  T1  T2  T3
+        /  \
+       T1  T2
+</pre>
+
+
+<h4>Node deletion from an AVL-tree</h4>
+
+
+<p>
+The basic idea: as before, consider a node deletion 
+as the deletion of the root (of a subtree).
+Replace the deleted root by an ``innermost'' node, as described in the
+lecture on ordered trees.
+
+</p><p>
+The promotion of the innermost node to the root might make one half of the
+rebuilt tree too shallow and unbalance the tree, and
+(repeated) rotations might be needed to repair the problem.
+The rotations would proceed along the path from the location of the
+former innermost node to the root of the overall tree.
+
+</p><p>
+So, starting from the leaf that replaced the promoted innermost node,
+search along the path from the leaf to the overall root, examining
+each node to see if it is unbalanced.  If an unbalanced node
+is located, call it Node Z.
+
+</p><p>
+We must revise the
+definition of the Y-X-nodes:
+</p><ol>
+<li>
+Of Node Z's two subtrees, locate the subtree with the greater height
+and call the root of this subtree,
+``Node Y.''
+</li><li>
+Of Node Y's two subtrees, locate the subtree with the greater height
+and call the root of this subtree,
+``Node X.'' (If both subtrees have the same height, then choose either one.)
+</li></ol>
+
+Now, the rotation proceeds as before.
+
+<p>
+Unfortunately, additional rotations might be necessary, so the
+technique is repeated for the parent node of the newly installed
+rotated root, and its parent, etc., until the root of the entire
+tree is balanced.
+Although this is more work, there are at most on the order of
+<em>log<sub>2</sub>N</em> rotations, so the deletion operation
+is relatively efficient.
+
+
+
+</p></body></html>
