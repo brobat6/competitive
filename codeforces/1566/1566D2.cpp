@@ -11,26 +11,26 @@ const int MOD = 1000000007;
 int n, m;
 
 bool comp(pair<int, int> a, pair<int, int> b) {
-    if(a.first==b.first) return a.second > b.second;
+    if(a.first==b.first) return a.second < b.second;
     return a.first < b.first;
 }
 
 void solve() {
     cin >> n >> m;
     vector<pair<int, int>> v(m*n);
-    map<int, int> mp;
+    map<int, pair<int, int>> mp;
     forn(i, 0, m*n) {
         cin >> v[i].first;
         v[i].second = i;
     }
     sort(v.begin(), v.end(), comp);
-    forn(i, 0, m*n) mp[v[i].second] = i;
-    vector<int> t(m*n, 0);
+    forn(i, 0, m*n) mp[v[i].second] = {v[i].first, i};
+    vector<int> t(m*n, -1);
     int ans = 0;
     for(auto i : mp) {
-        int k = (i.second / m) * m;
-        forn(j, k, i.second) if(t[j]==1) ans++;
-        t[i.second] = 1;
+        int k = (i.second.second / m) * m;
+        forn(j, k, i.second.second) if(t[j] != -1 && t[j] != i.second.first) ans++;
+        t[i.second.second] = i.second.first;
     }
     cout << ans << endl;
 }
