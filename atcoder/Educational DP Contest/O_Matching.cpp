@@ -19,6 +19,7 @@ void solve() {
     forn(i, 0, n) forn(j, 0, m) dp[i][j] = 0;
     forn(i, 0, n) if(arr[0][i]) dp[0][1<<i] = 1;
     forn(i, 1, n) {
+        // Assuming i men are allocated.
         forn(j, 0, m) {
             if(__builtin_popcount(j) != i) continue;
             forn(k, 0, n) {
