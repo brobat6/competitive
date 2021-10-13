@@ -13,14 +13,17 @@ vector<pair<int, int>> edge;
 vector<int> adj[MAXN];
 int ans;
 int stt;
+int cnt = 0;
 
 bool check(int l, int r) {
-    cout << "? ";
     set <int> s;
     forn(i, l, r + 1) {
         s.insert(edge[i-1].first);
         s.insert(edge[i-1].second);
     }
+    if(s.size()==0) return true;
+    cnt++;
+    cout << "? ";
     cout << s.size() << " ";
     for(auto i : s) cout << i << " ";
     cout << endl;
@@ -51,7 +54,7 @@ void bfs(int start) {
 void solve() {
     cin >> n;
     forn(i, 0, n - 1) {
-        int t1, t2;
+        int t1, t2, t3;
         cin >> t1 >> t2;
         --t1; --t2;
         adj[t1].push_back(t2);
@@ -60,6 +63,7 @@ void solve() {
     forn(i, 0, n) if(adj[i].size()==1) stt = i;
     bfs(stt);
     cout << "? " << n << " ";
+    cnt++;
     forn(i, 1, n + 1) cout << i << " ";
     cout << endl;
     cin >> ans;
@@ -89,7 +93,7 @@ int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
 
-    // freopen("input.txt", "r", stdin);
+    freopen("hack.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
     
     int T = 1;
