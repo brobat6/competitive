@@ -5,6 +5,7 @@
 - [1 - Matrix Exponentiation](#1)
 - [2 - Convex Hull Trick - Resources](#2)
 - [3 - Topological Sort - BFS](#3)
+- [4 - Accurate floor/ceil function](#4)
 
 <a name='1'></a>
 
@@ -279,3 +280,30 @@ int32_t main() {
     return 0;
 }
 ```
+
+<a name='4'></a>
+
+# Accurate floor/ceil function
+
+Suppose we want to find the smallest integer satisfying the inequality 
+$$
+x <= a/b
+$$
+So we will need to calculate the floor of b/a (or ceil for >=). But floating point isn't that accurate and we may end up with a wrong value. A way to do it without using double is:
+
+```c++
+int accurateFloor(int a, int b) {
+    int val = a/b;
+    while(val * b > a) val--;
+    return val;
+}
+
+int accurateCeil(int a, int b) {
+    int val = a/b;
+    while(val * b < a) val++;
+    return val;
+}
+```
+
+
+

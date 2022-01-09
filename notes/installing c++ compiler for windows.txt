@@ -1,0 +1,20 @@
+Setting up a C++ Runtime Environment on VSCode in Windows (From scratch):
+
+---------------------------------------------------
+INSTALLING THE COMPILER
+---------------------------------------------------
+Follow the steps from https://www.msys2.org/
+In detail -
+    Download the installer.
+    Install MSYS2 in C:\msys64
+    Open MSYS2 from Start, it will open a terminal. Run the following commands -
+        1. pacman -Syu
+        2. pacman -Su
+        3. pacman -S mingw-w64-x86_64-toolchain
+    Add C:\msys64\mingw64\bin to PATH (search Environment Variables on Start to open)
+Check if mingw is installed or not by typing "g++ --version" and "gdb --version" in the command prompt.
+Helpful resources -
+    https://code.visualstudio.com/docs/cpp/config-mingw
+    https://www.msys2.org/
+    https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
+
