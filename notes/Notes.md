@@ -7,6 +7,8 @@
 - [Topological Sort - BFS](#topological-sort---bfs)
 - [Accurate floor/ceil function](#accurate-floorceil-function)
 - [Installing C++ Compiler for Windows](#installing-c-compiler-for-windows)
+- [Resources - Books](#resources---books)
+- [Bit Manipulation & Bitwise Operations](#bit-manipulation--bitwise-operations)
 
 # Matrix Exponentiation
 
@@ -332,3 +334,21 @@ Helpful resources -
 - https://code.visualstudio.com/docs/cpp/config-mingw
 - https://www.msys2.org/
 - https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
+
+
+# Resources - Books
+
+Books I've found extremely useful so far - 
+- An Introduction to the USA Computing Olympiad [Darren Yao]
+- Competitive Programmer's Handbook [CSES]
+
+This second list doesn't refer to "recommended" books or anything, just books I've discovered that might be useful someday.
+ - Effective Modern C++ [Scott Meyers]
+
+# Bit Manipulation & Bitwise Operations
+
+Easily get the i^th bit of n in binary - 
+```c++
+int b = (n>>(30 - i)) & 1; 
+// Assuming 30 is the total number of bits in decimal representation of n (Works for n <= 10^9).
+```
