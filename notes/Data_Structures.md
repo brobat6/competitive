@@ -3,6 +3,9 @@
   - [Problems:](#problems)
   - [Trie implementation using 2D Array](#trie-implementation-using-2d-array)
   - [Trie - Implementation (Better)](#trie---implementation-better)
+- [Segment Tree](#segment-tree)
+  - [Resources:](#resources-1)
+  - [Template (Basic)](#template-basic)
 
 # Trie
 
@@ -10,12 +13,12 @@
 
 1. https://leetcode.com/problems/implement-trie-prefix-tree/solution/
 2. https://codeforces.com/blog/entry/15729
-3. https://leetcode.com/problems/implement-trie-prefix-tree/discuss/931022/trie-implementation-using-2d-array
+3. https://leetcode.com/explore/learn/card/trie/ 
 
 ## Problems:
 
 1. https://codingcompetitions.withgoogle.com/kickstart/round/000000000019ffc7/00000000001d3ff3#problem. Solution - https://codingcompetitions.withgoogle.com/kickstart/submissions/000000000019ffc7/00000000005a8fe0
-2.  https://codeforces.com/contest/1625/problem/D. Solution - https://codeforces.com/contest/1625/submission/142528661
+2.  https://codeforces.com/contest/1625/problem/D
 3.  https://codeforces.com/problemset/problem/706/D
 4.  https://www.codechef.com/JAN15/problems/XRQRS
 5.  https://codeforces.com/contest/456/problem/D
@@ -24,50 +27,9 @@ Trie is quite useful in XOR related queries. Say we are given a number X (per qu
 
 
 ## Trie implementation using 2D Array 
-I like this because it avoids pointers, classes and all of that stuff.
-Lets create a trie to store binary representation of numbers.
-
-```c++
-vector<vector<int>> trie(1, vector<int>(2, -1));
-// The dimensions of trie are [Number_of_nodes][Size_of_alphabet]. In this case, we are going for binary representation so the size of alphabet is 2. Whenever we are adding a new link, i.e. a new node, we will increase the size of the trie. The node 0 is the root of the trie.
-vector <int> idx(1, -1);
-// This stores the value of the data in a node. We can have various representations of this. For example, in case all we care about is finding whether a string is in the trie or not, we can use "unordered_set<int> en;" Where en will have all the values that correspond to end nodes. Basically, this is where we will actually "store" our answer, the data here will be modified according to whatever the question asks.
-int nx = 0; 
-
-void insert(int x) {
-// Insert the number x into the trie.
-    // First, find the bitwise representation of x. Lets say it is stored in the following vector.
-    vector <int> bits;
-    int t = 0; // Currently points to the root.
-    for(int i = 0; i < bits.size(); i++) {
-        int t = 0;
-        int bit = bits[i];
-        // Now for the main part of insertion.
-        if(trie[t][bit] == -1) {
-            trie[t][bit] = trie.size(); // trie[t][bit] is given a new node. 
-            trie.push_back({-1, -1});
-            idx.push_back(-1);
-        }
-        t = trie[t][bit]; 
-        // Now t points to the next node.
-    }
-    idx[t] = nx; // Give the unique ID to this number. In case of unordered set, go for en.insert(t);
-    nx++;
-}
-
-bool find(int x) {
-// Find if x exists in the trie.
-    vector <int> bits;
-    int t = 0;
-    for(int i = 0; i < bits.size(); i++) {
-        int bit = bits[i];
-        if(trie[t][bit] == -1) return false;
-        t = trie[t][bit];
-    }
-    // The number x is present in idx[t].
-    return true;
-}
-```
+I liked this method but it actually turned out to be harder for me than the struct/pointer based implementation. Anyway, here are the resources to use if you want to implement using 2D Array - 
+1. https://leetcode.com/problems/implement-trie-prefix-tree/discuss/931022/trie-implementation-using-2d-array
+2. https://codeforces.com/contest/1625/submission/142528661 (Tourist's solution)
 
 ## Trie - Implementation (Better)
 
@@ -197,3 +159,63 @@ void erase(int n) {
 }
 ```
 
+# Segment Tree
+
+## Resources:
+1. https://cp-algorithms.web.app/data_structures/segment_tree.html
+2. https://leetcode.com/articles/a-recursive-approach-to-segment-trees-range-sum-queries-lazy-propagation/
+3. https://www.hackerearth.com/practice/notes/segment-tree-and-lazy-propagation/
+
+## Template (Basic)
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+
+    SegTree(int size) {
+        tree.resize(size);
+    }
+
+    T func(T a, T b) {
+        return a + b; // Segment tree for the sum
+        // return min(a, b); // Segment tree for the minimum
+    }
+
+    void build(int node, int start, int end, vector <T> &v) {
+        if(start == end) {
+            tree[node] = v[start];
+        } else {
+            int mid = (start + end)/2;
+            build(2*node, start, mid, v);
+            build(2*node + 1, mid + 1, end, v);
+            tree[node] = func(tree[node*2], tree[node*2 + 1]);
+        }
+    }
+
+    void update(int node, int start, int end, int pos, T val) {
+        if(start == end) {
+            tree[node] = val; // Assign value here.
+        } else {
+            int mid = (start + end)/2;
+            if(pos <= mid) {
+                update(node*2, start, mid, pos, val);
+            } else {
+                update(node*2 + 1, mid + 1, end, pos, val);
+            }
+            tree[node] = func(tree[node*2], tree[node*2 + 1]);
+        }
+    }
+
+    T query(int node, int start, int end, int l, int r) {
+        if(start > end) {
+            return 0; // Return appropriate value, for example INF for minimum.
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        int mid = (start + end)/2;
+        return func(query(node*2, start, mid, l, min(mid, r)), query(node*2 + 1, mid + 1, end, max(l, mid + 1), r));
+    }
+};
+```
