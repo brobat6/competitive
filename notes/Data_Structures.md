@@ -208,7 +208,7 @@ public:
     }
 
     T query(int node, int start, int end, int l, int r) {
-        if(start > end) {
+        if(l > r) {
             return 0; // Return appropriate value, for example INF for minimum.
         }
         if(l == start && r == end) {
