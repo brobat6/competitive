@@ -1,5 +1,7 @@
 - [Binary Search](#binary-search)
 - [GCD](#gcd)
+- [XOR Hashing](#xor-hashing)
+  - [Questions](#questions)
 
 # Binary Search
 
@@ -28,3 +30,10 @@ int gcd(int a, int b) {
     return gcd(b, a % b);
 }
 ```
+
+# XOR Hashing
+
+## Questions
+1. https://www.codechef.com/problems/VLD (not sure if XOR hashing or not)
+2. https://codeforces.com/problemset/problem/1418/G
+3. 

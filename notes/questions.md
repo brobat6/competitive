@@ -11,6 +11,9 @@
   - [Sample input](#sample-input-1)
   - [Sample output](#sample-output-1)
   - [Explanation](#explanation-1)
+  - [Elevate and Depress](#elevate-and-depress)
+  - [Sample Input 1](#sample-input-1)
+  - [Sample Output 1](#sample-output-1)
 
 # Stack 
 
@@ -87,3 +90,34 @@ The good sub-matrices are
 >4 (occurs twice)
 
 >5 (occurs thrice)
+
+## Elevate and Depress
+
+There are N pillars, lying on a straight line. The pillars are numbered from 1 to N. You have to perform Q operations on these pillars. Each operation can be of two types:
+
+1. > Elevate L R X
+
+This operation will increase the height of all pillars numbered from L to R (inclusive) by X. 
+
+2. > Depress L R X
+
+This operation will decrease the height of all pillars numbered from L to R (inclusive) by X.
+
+The height of all the pillars is initially 0. 
+
+Your task is to process these Q operations, and then output the final configuration of the pillars. 
+
+## Sample Input 1
+Number of pillars = 10
+
+Number of queries = 5
+
+1. Elevate 1 5 1
+2. Elevate 4 9 1
+3. Depress 3 10 2
+4. Depress 1 6 1
+5. Elevate 1 5 3
+
+## Sample Output 1
+[3, 3, 1, 2, 2, -2, -1, -1, -1, -2]
+
