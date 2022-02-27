@@ -14,7 +14,7 @@
   - [Elevate and Depress](#elevate-and-depress)
   - [Sample Input 1](#sample-input-1)
   - [Sample Output 1](#sample-output-1)
-  - [Counting Quartets (10 marks)](#counting-quartets-10-marks)
+- [Counting Quartets (10 marks)](#counting-quartets-10-marks)
   - [Q1 (1 mark)](#q1-1-mark)
   - [Q2 (2 marks)](#q2-2-marks)
   - [Q3 (4 marks)](#q3-4-marks)
@@ -126,7 +126,7 @@ Number of queries = 5
 ## Sample Output 1
 [3, 3, 1, 2, 2, -2, -1, -1, -1, -2]
 
-## Counting Quartets (10 marks)
+# Counting Quartets (10 marks)
 
 Any string of length N becomes a *quartet* when it satisfies the following constraints:
 1. It consists ONLY of the letters 'a', 'b', 'c', and 'd'.
