@@ -14,6 +14,11 @@
   - [Elevate and Depress](#elevate-and-depress)
   - [Sample Input 1](#sample-input-1)
   - [Sample Output 1](#sample-output-1)
+  - [Counting Quartets (10 marks)](#counting-quartets-10-marks)
+  - [Q1 (1 mark)](#q1-1-mark)
+  - [Q2 (2 marks)](#q2-2-marks)
+  - [Q3 (4 marks)](#q3-4-marks)
+  - [Q4 (3 marks)](#q4-3-marks)
 
 # Stack 
 
@@ -121,3 +126,26 @@ Number of queries = 5
 ## Sample Output 1
 [3, 3, 1, 2, 2, -2, -1, -1, -1, -2]
 
+## Counting Quartets (10 marks)
+
+Any string of length N becomes a *quartet* when it satisfies the following constraints:
+1. It consists ONLY of the letters 'a', 'b', 'c', and 'd'.
+2. For every two adjacent letters, the absolute value of their difference is greater than 1. For example, if two adjacent letters are "ac", their difference is 2. If they are "ba", their difference is 1. If they are "dd", their difference is 0, and so on. More formally, 
+
+$$ |Q_i - Q_{i - 1}| > 1, \forall i \in [1, n - 1]$$
+
+Some examples : 
+- "adad", "cadb", "d" are quartets.
+- "aaaaaa", "bac", "acf", "cA" are not quartets. 
+
+## Q1 (1 mark)
+Let's define f(N) = the number of possible quartets of length N. **Find f(1), f(2), f(3) and f(4).**
+
+## Q2 (2 marks)
+You might have seen that it will get increasingly hard to calculate f(N) for larger values of N. Let's define a new function F(N, x) = the number of possible quartets of length N, such that the first letter of the quartet is x. (x = 'a', 'b', 'c' or 'd'). **Find F(5, 'a'), F(5, 'b'), F(5, 'c') and F(5, 'd').**
+
+## Q3 (4 marks)
+Create a recurrence relation. Try to express F(N, x) (x = 'a', 'b', 'c', or 'd') in terms of of F(N - 1, 'a'), F(N - 1, 'b'), F(N - 1, 'c'), F(N - 1, 'd'). **Find the expression for F(N, 'a') and F(N, 'b')**.
+
+## Q4 (3 marks)
+Give an approach to write the code to solve the problem for large values of N. (Use the result realized in Q3). Comment about the time and space complexity of your approach. 
