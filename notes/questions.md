@@ -145,7 +145,7 @@ Let's define f(N) = the number of possible quartets of length N. **Find f(1), f(
 You might have seen that it will get increasingly hard to calculate f(N) for larger values of N. Let's define a new function F(N, x) = the number of possible quartets of length N, such that the first letter of the quartet is x. (x = 'a', 'b', 'c' or 'd'). **Find F(5, 'a'), F(5, 'b'), F(5, 'c') and F(5, 'd').**
 
 ## Q3 (4 marks)
-Create a recurrence relation. Try to express F(N, x) (x = 'a', 'b', 'c', or 'd') in terms of of F(N - 1, 'a'), F(N - 1, 'b'), F(N - 1, 'c'), F(N - 1, 'd'). **Find the expression for F(N, 'a') and F(N, 'b')**.
+Create a recurrence relation. Try to express F(N, x) (x = 'a', 'b', 'c', or 'd') in terms of of F(N - 1, 'a'), F(N - 1, 'b'), F(N - 1, 'c') and F(N - 1, 'd'). **Find the expression for F(N, 'a') and F(N, 'b')**.
 
 ## Q4 (3 marks)
 Give an approach to write the code to solve the problem for large values of N. (Use the result realized in Q3). Comment about the time and space complexity of your approach. 
