@@ -1,6 +1,7 @@
 - [Faster unordered_map](#faster-unordered_map)
 - [Random number Generator](#random-number-generator)
 - [Ordered Set](#ordered-set)
+- [Y_Combinator (Recursive Lambdas)](#y_combinator-recursive-lambdas)
 
 # Faster unordered_map
 
@@ -49,4 +50,68 @@ using namespace __gnu_pbds;
 It can also be used as an Ordered Set of pairs. Just change the definition to 
 ```c++
 #define ordered_set tree<pair<int, int>, null_type,less<pair<int, int>>, rb_tree_tag,tree_order_statistics_node_update>
+```
+
+Example of some operations : 
+```c++
+    ordered_set X;
+    X.insert(1);
+    X.insert(2);
+    X.insert(4);
+    X.insert(8);
+    X.insert(16);
+
+    cout<<*X.find_by_order(1)<<endl; // 2
+    cout<<*X.find_by_order(2)<<endl; // 4
+    cout<<*X.find_by_order(4)<<endl; // 16
+    cout<<(end(X)==X.find_by_order(6))<<endl; // true
+
+    cout<<X.order_of_key(-5)<<endl;  // 0
+    cout<<X.order_of_key(1)<<endl;   // 0
+    cout<<X.order_of_key(3)<<endl;   // 2
+    cout<<X.order_of_key(4)<<endl;   // 2
+    cout<<X.order_of_key(400)<<endl; // 5
+```
+
+# Y_Combinator (Recursive Lambdas)
+
+The following lines of code let us use recursive lambdas in C++.
+
+```c++
+template<class Fun>
+class y_combinator_result {
+	Fun fun_;
+public:
+	template<class T>
+	explicit y_combinator_result(T &&fun): fun_(std::forward<T>(fun)) {}
+
+	template<class ...Args>
+	decltype(auto) operator()(Args &&...args) {
+		return fun_(std::ref(*this), std::forward<Args>(args)...);
+	}
+};
+
+template<class Fun>
+decltype(auto) y_combinator(Fun &&fun) {
+	return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun));
+}
+```
+
+Recursive lambdas can be used as follows: (Example of DFS)
+
+```c++
+int main() {
+    auto DFS = y_combinator([&](auto self, int node) -> void {
+        visited[node] = true;
+        for(auto next : adj[node]) {
+            if(visited[next]) continue;
+            self(next);
+        }
+    });
+    for(int i = 0; i < n; i++) {
+        if(!visited[i]) {
+            DFS(i);
+        }
+    }
+}
 ```
