@@ -9,6 +9,7 @@
 - [Installing C++ Compiler for Windows](#installing-c-compiler-for-windows)
 - [Resources - Books](#resources---books)
 - [Bit Manipulation & Bitwise Operations](#bit-manipulation--bitwise-operations)
+- [Unique differences in array](#unique-differences-in-array)
 
 # Matrix Exponentiation
 
@@ -351,4 +352,51 @@ Easily get the i^th bit of n in binary -
 ```c++
 int b = (n>>(30 - i)) & 1; 
 // Assuming 30 is the total number of bits in decimal representation of n (Works for n <= 10^9).
+```
+
+# Unique differences in array
+
+Q. Given an array of N integers [N = 10^5, 1 <= a_i <= 10^5], find the number of unique differences possible between any pair of elements in the array.
+Essentially a harder version of - https://codeforces.com/contest/1466/problem/A
+
+Solution - https://stackoverflow.com/questions/8454573/find-all-differences-in-an-array-in-on
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+
+bitset<100100> A;
+bitset<100100> B;
+
+int32_t main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    
+    int t;
+    cin >> t;
+    while(t--) {
+        A.reset();
+        B.reset();
+        int n;  
+        cin >> n;
+        int arr[n];
+        for(int i = 0; i < n; i++) {
+            cin >> arr[i];
+        }
+        for(int i = 1; i < n; i++) {
+            int diff = arr[i] - arr[i - 1];
+            A[diff] = 1;
+            B <<= diff;
+            B[diff] = 1;
+            A = A | B;
+            // cout << diff << " " << A << " " << B << '\n';
+        }
+        cout << (int)A.count() << '\n';
+    }
+
+    
+    
+    return 0;
+}
 ```
