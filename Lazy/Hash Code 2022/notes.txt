@@ -1,0 +1,4 @@
+I will have to change my entire skills system.
+It is important to sort the skills by increasing order of their levels.
+
+Forget Skill struct, identify skills by {id, level}. pair<int, int>
