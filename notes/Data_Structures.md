@@ -6,6 +6,7 @@
 - [Segment Tree](#segment-tree)
   - [Resources:](#resources-1)
   - [Template (Basic)](#template-basic)
+- [Fenwick Tree](#fenwick-tree)
 
 # Trie
 
@@ -219,3 +220,30 @@ public:
     }
 };
 ```
+
+# Fenwick Tree
+
+This basic implementation of Fenwick Tree (addition on element, sum on interval) is useful because it's much easier to implement than Segment Tree.
+
+```c++
+const int N = 200100;
+int ft[N];
+
+void update(int i, int n, int x) {
+    while(i < n) {
+        ft[i] += x;
+        i |= i + 1;
+    }
+}
+
+int query(int i) {
+    int x = 0;
+    while(i >= 0) {
+        x += ft[i];
+        i &= i + 1;
+        i--;
+    }
+    return x;
+}
+```
+
