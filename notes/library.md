@@ -24,7 +24,7 @@
     - [Gray Code and Inverse Gray Code](#gray-code-and-inverse-gray-code)
     - [Sparse table for RMQ in O(1)](#sparse-table-for-rmq-in-o1)
     - [DSU](#dsu)
-    - [Fenwick Tree](#fenwick-tree)
+    - [Fenwick Tree - 2D](#fenwick-tree---2d)
     - [Segment Tree](#segment-tree)
     - [Segment Tree - Add on Range Update, Min on Range Query](#segment-tree---add-on-range-update-min-on-range-query)
     - [Segment Tree - Add on Range Update, Sum on Range Query](#segment-tree---add-on-range-update-sum-on-range-query)
@@ -426,9 +426,30 @@ public:
 }
 ```
 
-### Fenwick Tree
+### Fenwick Tree - 2D
 
-.
+```c++
+struct FenwickTree2D {
+    vector<vector<int>> bit;
+    int n, m;
+
+    // init(...) { ... }
+
+    int sum(int x, int y) {
+        int ret = 0;
+        for (int i = x; i >= 0; i = (i & (i + 1)) - 1)
+            for (int j = y; j >= 0; j = (j & (j + 1)) - 1)
+                ret += bit[i][j];
+        return ret;
+    }
+
+    void add(int x, int y, int delta) {
+        for (int i = x; i < n; i = i | (i + 1))
+            for (int j = y; j < m; j = j | (j + 1))
+                bit[i][j] += delta;
+    }
+};
+```
 
 ### Segment Tree
 
@@ -757,7 +778,86 @@ public:
 
 ### Segment Tree - Arithmetic Progression
 
-.
+```c++
+class SegTree {
+public:
+    vector <int> tree;
+    vector <pair<int, int>> lazy;
+    vector <int> sz;
+ 
+    SegTree(int size) {
+        tree.resize(size, 0);
+        lazy.resize(size, {0, 0});
+        sz.resize(size, 0);
+    }
+ 
+    void build(int node, int start, int end) {
+        if(start == end) {
+            sz[node] = 1;
+        } else {
+            int mid = (start + end)/2;
+            build(node*2, start, mid);
+            build(node*2 + 1, mid + 1, end);
+            sz[node] = end - start + 1;
+        }
+    }
+ 
+    int sum(int a, int d, int n) {
+        return (a * 2 + (n - 1) * d) % MOD * n % MOD * inv_2 % MOD;
+    }
+ 
+    void push(int n) {
+        int a = lazy[n].first;
+        int d = lazy[n].second;
+        int next_a = (a + (sz[n*2])*d) % MOD;
+        tree[n*2] = (tree[n*2] + sum(a, d, sz[n*2])) % MOD;
+        tree[n*2+1] = (tree[n*2+1] + sum(next_a, d, sz[n*2+1])) % MOD;
+        lazy[n*2].first = (lazy[n*2].first + a) % MOD;
+        lazy[n*2 + 1].first = (lazy[n*2 + 1].first + next_a) % MOD;
+        lazy[n*2].second = (lazy[n*2].second + d) % MOD;
+        lazy[n*2 + 1].second = (lazy[n*2 + 1].second + d) % MOD;
+        lazy[n] = {0, 0};
+    }
+ 
+    void update_range(int node, int start, int end, int l, int r, int a, int d) {
+        // Add AP to l, r
+        if(start == end) {
+            tree[node] = (tree[node] + sum(a, d, sz[node])) % MOD;
+            lazy[node] = {0, 0};
+            return;
+        }
+        if(l == start && r == end) {
+            tree[node] = (tree[node] + sum(a, d, sz[node])) % MOD;
+            lazy[node].first = (lazy[node].first + a) % MOD;
+            lazy[node].second = (lazy[node].second + d) % MOD;
+        } else {
+            push(node);
+            int mid = (start + end)/2;
+            if(l <= mid) update_range(node * 2, start, mid, l, min(r, mid), a, d);
+            int next_a;
+            if(l > mid) next_a = a;
+            else next_a = (a + (mid - l + 1)*d) % MOD;
+            if(r > mid) update_range(node * 2 + 1, mid + 1, end, max(l, mid + 1), r, next_a, d);
+            tree[node] = (tree[node * 2] + tree[node * 2 + 1]) % MOD;
+        }
+    }
+ 
+    int query(int node, int start, int end, int l, int r) {
+        if(start == end) {
+            return tree[node];
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        push(node);
+        int mid = (start + end)/2;
+        int a = 0, b = 0;
+        if(l <= mid) a = query(node * 2, start, mid, l, min(r, mid));
+        if(r > mid) b = query(node * 2 + 1, mid + 1, end, max(l, mid + 1), r);
+        return (a + b) % MOD;
+    }
+};
+```
 
 ### Trie
 Represent a Trie using a struct.
@@ -838,7 +938,25 @@ int max_xor(int n) {
 
 ### String algorithms
 
-.
+Z-function: The Z-function for a string $S$ is an array of length $N$ where the $i^{th}$ element is equal to the greatest number of characters starting from position $i$ that coincide with the first characters of $S$.
+
+```c++
+vector<int> z_function(string s) {
+    int n = (int) s.length();
+    vector<int> z(n);
+    for (int i = 1, l = 0, r = 0; i < n; ++i) {
+        if (i <= r)
+            z[i] = min (r - i + 1, z[i - l]);
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]])
+            ++z[i];
+        if (i + z[i] - 1 > r)
+            l = i, r = i + z[i] - 1;
+    }
+    return z;
+}
+```
+
+
 
 ### Ternary Search
 Finding the maximum value of a function that first strictly increases, then strictly decreases
@@ -1224,4 +1342,3 @@ vl conv(const vl &a, const vl &b) {
     return {out.begin(), out.begin() + s};
 }
 ```
-
