@@ -22,6 +22,8 @@
     - [Segment Tree - Add on Range Update, Sum on Range Query](#segment-tree---add-on-range-update-sum-on-range-query)
     - [Segment Tree - Assignment on Range Update, Minimum on Range Query](#segment-tree---assignment-on-range-update-minimum-on-range-query)
     - [Segment Tree - Assignment on Range Update, Sum on Range Query](#segment-tree---assignment-on-range-update-sum-on-range-query)
+    - [Segment Tree - Arithmetic Progression](#segment-tree---arithmetic-progression)
+    - [Trie](#trie)
 
 ### Template
 
@@ -598,3 +600,85 @@ public:
     }
 };
 ```
+
+### Segment Tree - Arithmetic Progression
+
+.
+
+### Trie
+Represent a Trie using a struct.
+
+```c++
+#define M 26
+
+struct Trie {
+    Trie* bit[M];
+    bool endOfWord = false;
+};
+Trie* root;
+```
+Insertion operation in a Trie.
+```c++
+void insert(string word) {
+    Trie* temp = root;
+    for(auto ch : word) {
+        int b = ch - 'a';
+        if(!temp->bit[b]) {
+            temp->bit[b] = new Trie();
+        }
+        temp = temp->bit[b];
+    }
+    temp->endOfWord = true;
+}
+```
+Search if a string is present in a Trie.
+```c++
+bool search(string word) {
+	Trie* temp = root;
+	for(auto ch : word) {
+		int b = ch - 'a';
+		if(!temp->bit[b]) return false;
+		temp = temp->bit[b];
+	}
+	if(temp->endOfWord) return true;
+	return false;
+}
+```
+
+Problem : Finding maximum XOR of a given number in an array.
+
+```c++
+struct Trie {
+    Trie* bit[2];
+    int data = -1;
+};
+    
+Trie* root;
+    
+void insert(int n) {
+    Trie* temp = root;
+    for(int i = 0; i < 31; i++) {
+        int b = (n >> (30 - i)) & 1;
+        if(!temp->bit[b]) {
+            temp->bit[b] = new Trie();
+        }
+        temp = temp->bit[b];
+    }
+    temp->data = n;
+}
+    
+int max_xor(int n) {
+    Trie* temp = root;
+    for(int i = 0; i < 31; i++) {
+        int b = (n >> (30 - i)) & 1;
+        if(!temp->bit[!b]) {
+            temp = temp->bit[b];
+        }
+        else {
+            temp = temp->bit[!b];
+        }
+    }
+    return n^(temp->data);
+}
+```
+
