@@ -4,8 +4,11 @@
 
 
 - [Reference Library for ICPC](#reference-library-for-icpc)
+  - [Important Stuff](#important-stuff)
     - [Template](#template)
     - [Binary Exponentiation](#binary-exponentiation)
+    - [Y Combinator](#y-combinator)
+  - [Reference](#reference)
     - [Compute GCD using Euclidean Algorithm](#compute-gcd-using-euclidean-algorithm)
     - [Finding $N^{th}$ Fibonacci Number in $O(Log N)$](#finding-nth-fibonacci-number-in-olog-n)
     - [Sieve of Eratosthenes](#sieve-of-eratosthenes)
@@ -24,9 +27,15 @@
     - [Segment Tree - Assignment on Range Update, Sum on Range Query](#segment-tree---assignment-on-range-update-sum-on-range-query)
     - [Segment Tree - Arithmetic Progression](#segment-tree---arithmetic-progression)
     - [Trie](#trie)
+    - [String algorithms](#string-algorithms)
+    - [Ternary Search](#ternary-search)
+    - [Find bridges in a graph](#find-bridges-in-a-graph)
+
+
+## Important Stuff
 
 ### Template
-
+Snippet : cppbasic
 ```c++
 #include <bits/stdc++.h>
 using namespace std;
@@ -46,7 +55,7 @@ int32_t main() {
 ```
 
 ### Binary Exponentiation
-
+Snippet : binpow
 ```c++
 int binpow(int a, int b) {
     int res = 1;
@@ -58,6 +67,31 @@ int binpow(int a, int b) {
     return res % MOD;
 }
 ```
+
+### Y Combinator
+Snippet : ycomb
+```c++
+template<class Fun>
+class y_combinator_result {
+    Fun fun_;
+public:
+    template<class T>
+    explicit y_combinator_result(T &&fun): fun_(std::forward<T>(fun)) {}
+
+    template<class ...Args>
+decltype(auto) operator()(Args &&...args) {
+    return fun_(std::ref(*this), std::forward<Args>(args)...);
+}
+};
+
+template<class Fun>
+decltype(auto) y_combinator(Fun &&fun) {
+    return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun));
+}
+```
+
+
+## Reference
 
 ### Compute GCD using Euclidean Algorithm
 
@@ -679,6 +713,74 @@ int max_xor(int n) {
         }
     }
     return n^(temp->data);
+}
+```
+
+### String algorithms
+
+.
+
+### Ternary Search
+Finding the maximum value of a function that first strictly increases, then strictly decreases
+
+```c++
+double ternary_search(double l, double r) {
+    double eps = 1e-9;              //set the error limit here
+    while (r - l > eps) {
+        double m1 = l + (r - l) / 3;
+        double m2 = r - (r - l) / 3;
+        double f1 = f(m1);      //evaluates the function at m1
+        double f2 = f(m2);      //evaluates the function at m2
+        if (f1 < f2)
+            l = m1;
+        else
+            r = m2;
+    }
+    return f(l);                    //return the maximum of f(x) in [l, r]
+}
+```
+
+### Find bridges in a graph
+
+For an undirected graph, a bridge is an edge, which, when removed, increases the number of components in the graph.
+
+Time Complexity : $O(N + M)$.
+
+We can replace the `IS_BRIDGE(v, to)` with whatever we want, for example, push_back to a vector. 
+
+```c++
+int n; // number of nodes
+vector<vector<int>> adj; // adjacency list of graph
+
+vector<bool> visited;
+vector<int> tin, low;
+int timer;
+
+void dfs(int v, int p = -1) {
+    visited[v] = true;
+    tin[v] = low[v] = timer++;
+    for (int to : adj[v]) {
+        if (to == p) continue;
+        if (visited[to]) {
+            low[v] = min(low[v], tin[to]);
+        } else {
+            dfs(to, v);
+            low[v] = min(low[v], low[to]);
+            if (low[to] > tin[v])
+                IS_BRIDGE(v, to);
+        }
+    }
+}
+
+void find_bridges() {
+    timer = 0;
+    visited.assign(n, false);
+    tin.assign(n, -1);
+    low.assign(n, -1);
+    for (int i = 0; i < n; ++i) {
+        if (!visited[i])
+            dfs(i);
+    }
 }
 ```
 
