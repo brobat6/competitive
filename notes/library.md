@@ -8,6 +8,11 @@
     - [Template](#template)
     - [Binary Exponentiation](#binary-exponentiation)
     - [Y Combinator](#y-combinator)
+    - [Pragma](#pragma)
+    - [Faster unordered_map](#faster-unordered_map)
+    - [Random number Generator](#random-number-generator)
+    - [Ordered Set](#ordered-set)
+    - [Custom Comparators](#custom-comparators)
   - [Reference](#reference)
     - [Compute GCD using Euclidean Algorithm](#compute-gcd-using-euclidean-algorithm)
     - [Finding $N^{th}$ Fibonacci Number in $O(Log N)$](#finding-nth-fibonacci-number-in-olog-n)
@@ -36,6 +41,7 @@
     - [Bellman-Ford](#bellman-ford)
     - [0-1 BFS](#0-1-bfs)
     - [Floyd-Warshall Algorithm](#floyd-warshall-algorithm)
+    - [Lowest Common Ancestor](#lowest-common-ancestor)
 
 
 ## Important Stuff
@@ -94,6 +100,113 @@ template<class Fun>
 decltype(auto) y_combinator(Fun &&fun) {
     return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun));
 }
+```
+
+### Pragma
+
+```c++
+#pragma GCC optimize("Ofast")
+#pragma GCC target("avx,avx2,fma")
+```
+
+### Faster unordered_map
+
+The following lines of code let us use a faster unordered_map in C++. 
+
+```c++
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
+typedef cc_hash_table<int, int, hash<int>> ht;
+```
+
+### Random number Generator
+
+The following lines of code let us add a high quality random number generator in C++.
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    mt19937 rng_32(chrono::steady_clock::now().time_since_epoch().count()); // 32 bit random nos
+    mt19937_64 rng_64(chrono::steady_clock::now().time_since_epoch().count()); // 64 bit random nos
+    cout << rng(); // Generating a random no
+    vector <int> arr;
+    shuffle(arr.begin(), arr.end(), rng); // Randomly shuffling a permutation
+}
+```
+
+### Ordered Set 
+
+https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/
+
+It is a Policy Based data structure. It works as a normal set, but can support two more operations:
+1. find_by_order(k) : Returns an iterator to the kth element (counting from zero) in the set in O(Log N) time.
+2. order_of_key(k) : Returns the number of items that are **strictly** smaller than the item K in O(Log N) time.
+
+The following lines of code need to be added : 
+
+```c++
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+#define ordered_set tree<int, null_type,less<int>, rb_tree_tag,tree_order_statistics_node_update>
+```
+
+It can also be used as an Ordered Set of pairs. Just change the definition to 
+```c++
+#define ordered_set tree<pair<int, int>, null_type,less<pair<int, int>>, rb_tree_tag,tree_order_statistics_node_update>
+```
+
+Example of some operations : 
+```c++
+    ordered_set X;
+    X.insert(1);
+    X.insert(2);
+    X.insert(4);
+    X.insert(8);
+    X.insert(16);
+
+    cout<<*X.find_by_order(1)<<endl; // 2
+    cout<<*X.find_by_order(2)<<endl; // 4
+    cout<<*X.find_by_order(4)<<endl; // 16
+    cout<<(end(X)==X.find_by_order(6))<<endl; // true
+
+    cout<<X.order_of_key(-5)<<endl;  // 0
+    cout<<X.order_of_key(1)<<endl;   // 0
+    cout<<X.order_of_key(3)<<endl;   // 2
+    cout<<X.order_of_key(4)<<endl;   // 2
+    cout<<X.order_of_key(400)<<endl; // 5
+```
+
+### Custom Comparators
+
+Struct.
+```c++
+struct S {
+    int a, b;
+
+    bool operator <(const S & other) const {
+        return (a + b) < (other.a + other.b);
+    }
+};
+```
+
+Priority Queue.
+```c++
+bool compare(T a, T b) {
+
+}
+
+priority_queue<T, vector<T>, function<bool(T, T)>> pq(comapre);
+```
+
+Set.
+```c++
+auto cmp = [](int a, int b) { return ... };
+// For C++20:
+std::set<int, decltype(cmp)> s;
+// std::set<int, decltype(cmp)> s(cmp); 
 ```
 
 
@@ -1008,3 +1121,57 @@ for (int k = 0; k < n; ++k) {
 }
 ```
 
+### Lowest Common Ancestor
+
+Using Binary Lifting
+
+```c++
+int n, l;
+vector<vector<int>> adj;
+
+int timer;
+vector<int> tin, tout;
+vector<vector<int>> up;
+
+void dfs(int v, int p)
+{
+    tin[v] = ++timer;
+    up[v][0] = p;
+    for (int i = 1; i <= l; ++i)
+        up[v][i] = up[up[v][i-1]][i-1];
+
+    for (int u : adj[v]) {
+        if (u != p)
+            dfs(u, v);
+    }
+
+    tout[v] = ++timer;
+}
+
+bool is_ancestor(int u, int v)
+{
+    return tin[u] <= tin[v] && tout[u] >= tout[v];
+}
+
+int lca(int u, int v)
+{
+    if (is_ancestor(u, v))
+        return u;
+    if (is_ancestor(v, u))
+        return v;
+    for (int i = l; i >= 0; --i) {
+        if (!is_ancestor(up[u][i], v))
+            u = up[u][i];
+    }
+    return up[u][0];
+}
+
+void preprocess(int root) {
+    tin.resize(n);
+    tout.resize(n);
+    timer = 0;
+    l = ceil(log2(n));
+    up.assign(n, vector<int>(l + 1));
+    dfs(root, root);
+}
+```
