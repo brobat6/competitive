@@ -16,6 +16,12 @@
     - [Gray Code and Inverse Gray Code](#gray-code-and-inverse-gray-code)
     - [Sparse table for RMQ in O(1)](#sparse-table-for-rmq-in-o1)
     - [DSU](#dsu)
+    - [Fenwick Tree](#fenwick-tree)
+    - [Segment Tree](#segment-tree)
+    - [Segment Tree - Add on Range Update, Min on Range Query](#segment-tree---add-on-range-update-min-on-range-query)
+    - [Segment Tree - Add on Range Update, Sum on Range Query](#segment-tree---add-on-range-update-sum-on-range-query)
+    - [Segment Tree - Assignment on Range Update, Minimum on Range Query](#segment-tree---assignment-on-range-update-minimum-on-range-query)
+    - [Segment Tree - Assignment on Range Update, Sum on Range Query](#segment-tree---assignment-on-range-update-sum-on-range-query)
 
 ### Template
 
@@ -264,3 +270,331 @@ public:
 }
 ```
 
+### Fenwick Tree
+
+.
+
+### Segment Tree
+
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+
+    SegTree(int size) {
+        tree.resize(size);
+    }
+
+    T func(T a, T b) {
+        return a + b; // Segment tree for the sum
+        // return min(a, b); // Segment tree for the minimum
+    }
+
+    void build(int node, int start, int end, vector <T> &v) {
+        if(start == end) {
+            tree[node] = v[start];
+        } else {
+            int mid = (start + end)/2;
+            build(2*node, start, mid, v);
+            build(2*node + 1, mid + 1, end, v);
+            tree[node] = func(tree[node*2], tree[node*2 + 1]);
+        }
+    }
+
+    void update(int node, int start, int end, int pos, T val) {
+        if(start == end) {
+            tree[node] = val; // Assign value here.
+        } else {
+            int mid = (start + end)/2;
+            if(pos <= mid) {
+                update(node*2, start, mid, pos, val);
+            } else {
+                update(node*2 + 1, mid + 1, end, pos, val);
+            }
+            tree[node] = func(tree[node*2], tree[node*2 + 1]);
+        }
+    }
+
+    T query(int node, int start, int end, int l, int r) {
+        if(l > r) {
+            return 0; // Return appropriate value, for example INF for minimum.
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        int mid = (start + end)/2;
+        return func(query(node*2, start, mid, l, min(mid, r)), query(node*2 + 1, mid + 1, end, max(l, mid + 1), r));
+    }
+};
+```
+
+### Segment Tree - Add on Range Update, Min on Range Query
+
+Also works for
+* Add on range update, max on range query
+* Multiply on range update, sum on range query
+* AND on range update, OR on range query
+
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+    vector <T> lazy;
+ 
+    SegTree(int size) {
+        tree.resize(size);
+        lazy.resize(size);
+    }
+ 
+    void push(int node) {
+        tree[node * 2] += lazy[node];
+        tree[node * 2 + 1] += lazy[node];
+        lazy[node * 2] += lazy[node];
+        lazy[node * 2 + 1] += lazy[node];
+        lazy[node] = 0;
+    }
+ 
+    void update_range(int node, int start, int end, int l, int r, T val) {
+        // Add val to [l, r].
+        if(start == end) {
+            tree[node] += val;
+            lazy[node] = 0;
+            return;
+        }
+        if(l == start && r == end) {
+            tree[node] += val;
+            lazy[node] += val;            
+        } else {
+            push(node);
+            int mid = (start + end)/2;
+            if(l <= mid) update_range(node * 2, start, mid, l, min(r, mid), val);
+            if(r > mid) update_range(node * 2 + 1, mid + 1, end, max(l, mid + 1), r, val);
+            tree[node] = min(tree[node * 2], tree[node * 2 + 1]);
+        }
+    }
+ 
+    T query(int node, int start, int end, int l, int r) {
+        if(start == end) {
+            return tree[node];
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        push(node);
+        int mid = (start + end)/2;
+        int a = 1E18, b = 1E18;
+        if(l <= mid) a = query(node * 2, start, mid, l, min(r, mid));
+        if(r > mid) b = query(node * 2 + 1, mid + 1, end, max(l, mid + 1), r);
+        return min(a, b);
+    }
+};
+```
+
+### Segment Tree - Add on Range Update, Sum on Range Query
+
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+    vector <T> lazy;
+    vector <int> sz;
+ 
+    SegTree(int size) {
+        tree.resize(size);
+        lazy.resize(size);
+        sz.resize(size);
+    }
+ 
+    void build(int node, int start, int end) {
+        if(start == end) {
+            sz[node] = 1;
+        } else {
+            int mid = (start + end)/2;
+            build(node*2, start, mid);
+            build(node*2 + 1, mid + 1, end);
+            sz[node] = end - start + 1;
+        }
+    }
+ 
+    void push(int node) {
+        tree[node*2] += (lazy[node] * sz[node*2]);
+        tree[node * 2 + 1] += (lazy[node] * sz[node*2 + 1]);
+        lazy[node * 2] += lazy[node];
+        lazy[node * 2 + 1] += lazy[node];
+        lazy[node] = 0;
+    }
+ 
+    void update_range(int node, int start, int end, int l, int r, T val) {
+        // Add val to [l, r].
+        if(start == end) {
+            tree[node] += val;
+            lazy[node] = 0;
+            return;
+        }
+        if(l == start && r == end) {
+            tree[node] += val * (end - start + 1);
+            lazy[node] += val;
+        } else {
+            push(node);
+            int mid = (start + end)/2;
+            if(l <= mid) update_range(node * 2, start, mid, l, min(r, mid), val);
+            if(r > mid) update_range(node * 2 + 1, mid + 1, end, max(l, mid + 1), r, val);
+            tree[node] = tree[node * 2] + tree[node * 2 + 1];
+        }
+    }
+ 
+    T query(int node, int start, int end, int l, int r) {
+        if(start == end) {
+            return tree[node];
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        push(node);
+        int mid = (start + end)/2;
+        int a = 0, b = 0;
+        if(l <= mid) a = query(node * 2, start, mid, l, min(r, mid));
+        if(r > mid) b = query(node * 2 + 1, mid + 1, end, max(l, mid + 1), r);
+        return a + b;
+    }
+};
+```
+
+### Segment Tree - Assignment on Range Update, Minimum on Range Query
+
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+    vector <T> lazy;
+    vector <bool> marked;
+ 
+    SegTree(int size) {
+        tree.resize(size);
+        lazy.resize(size);
+        marked.resize(size, false);
+    }
+ 
+    void push(int node) {
+        tree[node*2] = lazy[node];
+        tree[node*2 + 1] = lazy[node];
+        lazy[node*2] = lazy[node];
+        lazy[node*2 + 1] = lazy[node];
+        marked[node*2] = true;
+        marked[node*2 + 1] = true;
+        marked[node] = false;
+    }
+ 
+    void update_range(int node, int start, int end, int l, int r, T val) {
+        // Add val to [l, r].
+        if(start == end) {
+            tree[node] = val;
+            marked[node] = false;
+            return;
+        }
+        if(l == start && r == end) {
+            tree[node] = val;
+            lazy[node] = val;
+            marked[node] = true;
+        } else {
+            if(marked[node]) push(node);
+            int mid = (start + end)/2;
+            if(l <= mid) update_range(node * 2, start, mid, l, min(r, mid), val);
+            if(r > mid) update_range(node * 2 + 1, mid + 1, end, max(l, mid + 1), r, val);
+            tree[node] = min(tree[node * 2], tree[node * 2 + 1]);
+        }
+    }
+ 
+    T query(int node, int start, int end, int l, int r) {
+        if(start == end) {
+            return tree[node];
+        }
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        if(marked[node]) push(node);
+        int mid = (start + end)/2;
+        int a = 1E18, b = 1E18;
+        if(l <= mid) a = query(node * 2, start, mid, l, min(r, mid));
+        if(r > mid) b = query(node * 2 + 1, mid + 1, end, max(l, mid + 1), r);
+        return min(a, b);
+    }
+};
+```
+
+### Segment Tree - Assignment on Range Update, Sum on Range Query
+
+```c++
+template <typename T>
+class SegTree {
+public:
+    vector <T> tree;
+    vector <T> lazy;
+    vector <bool> marked;
+    vector <int> sz;
+ 
+    SegTree(int size) {
+        tree.resize(size);
+        lazy.resize(size);
+        marked.resize(size, false);
+        sz.resize(size);
+    }
+ 
+    void build(int node, int start, int end) {
+        if(start == end) {
+            sz[node] = 1;
+        } else {
+            int mid = (start + end)/2;
+            build(node*2, start, mid);
+            build(node*2 + 1, mid + 1, end);
+            sz[node] = end - start + 1;
+        }
+    }
+ 
+    void push(int node) {
+        tree[node*2] = (lazy[node] * sz[node * 2]);
+        tree[node*2 + 1] = (lazy[node] * sz[node * 2 + 1]);
+        lazy[node*2] = lazy[node];
+        lazy[node*2 + 1] = lazy[node];
+        marked[node*2] = true;
+        marked[node*2 + 1] = true;
+        marked[node] = false;
+    }
+ 
+    void update_range(int node, int start, int end, int l, int r, T val) {
+        // Add val to [l, r].
+        if(start == end) {
+            tree[node] = val;
+            marked[node] = false;
+            return;
+        }
+        if(l == start && r == end) {
+            tree[node] = val * (end - start + 1);
+            lazy[node] = val;
+            marked[node] = true;
+        } else {
+            if(marked[node]) push(node);
+            int mid = (start + end)/2;
+            if(l <= mid) update_range(node * 2, start, mid, l, min(r, mid), val);
+            if(r > mid) update_range(node * 2 + 1, mid + 1, end, max(l, mid + 1), r, val);
+            tree[node] = tree[node * 2] + tree[node * 2 + 1];
+        }
+    }
+ 
+    T query(int node, int start, int end, int l, int r) {
+        if(l == start && r == end) {
+            return tree[node];
+        }
+        if(marked[node]) push(node);
+        int mid = (start + end)/2;
+        int a = 0, b = 0;
+        if(l <= mid) a = query(node * 2, start, mid, l, min(r, mid));
+        if(r > mid) b = query(node * 2 + 1, mid + 1, end, max(l, mid + 1), r);
+        return a + b;
+    }
+};
+```
