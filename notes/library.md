@@ -30,6 +30,12 @@
     - [String algorithms](#string-algorithms)
     - [Ternary Search](#ternary-search)
     - [Find bridges in a graph](#find-bridges-in-a-graph)
+    - [Finding Articulation Points in a Graph](#finding-articulation-points-in-a-graph)
+    - [Finding Strongly Connected Components in a Graph](#finding-strongly-connected-components-in-a-graph)
+    - [Dijkstra](#dijkstra)
+    - [Bellman-Ford](#bellman-ford)
+    - [0-1 BFS](#0-1-bfs)
+    - [Floyd-Warshall Algorithm](#floyd-warshall-algorithm)
 
 
 ## Important Stuff
@@ -780,6 +786,224 @@ void find_bridges() {
     for (int i = 0; i < n; ++i) {
         if (!visited[i])
             dfs(i);
+    }
+}
+```
+
+### Finding Articulation Points in a Graph
+
+For an undirected graph, an articulation point is a vertex, which, when removed alongwith all associated edges, increases the number of components in the graph.
+
+Time Complexity : $O(N + M)$.
+
+We can replace the `IS_CUTPOINT(v)` with whatever we want, for example, push_back to a vector. 
+
+```c++
+int n; // number of nodes
+vector<vector<int>> adj; // adjacency list of graph
+
+vector<bool> visited;
+vector<int> tin, low;
+int timer;
+
+void dfs(int v, int p = -1) {
+    visited[v] = true;
+    tin[v] = low[v] = timer++;
+    int children=0;
+    for (int to : adj[v]) {
+        if (to == p) continue;
+        if (visited[to]) {
+            low[v] = min(low[v], tin[to]);
+        } else {
+            dfs(to, v);
+            low[v] = min(low[v], low[to]);
+            if (low[to] >= tin[v] && p!=-1)
+                IS_CUTPOINT(v);
+            ++children;
+        }
+    }
+    if(p == -1 && children > 1)
+        IS_CUTPOINT(v);
+}
+
+void find_cutpoints() {
+    timer = 0;
+    visited.assign(n, false);
+    tin.assign(n, -1);
+    low.assign(n, -1);
+    for (int i = 0; i < n; ++i) {
+        if (!visited[i])
+            dfs (i);
+    }
+}
+```
+
+### Finding Strongly Connected Components in a Graph
+
+Time Complexity : $O(N + M)$
+
+```c++
+vector<vector<int>> adj, adj_rev;
+vector<bool> used;
+vector<int> order, component;
+
+void dfs1(int v) {
+    used[v] = true;
+
+    for (auto u : adj[v])
+        if (!used[u])
+            dfs1(u);
+
+    order.push_back(v);
+}
+
+void dfs2(int v) {
+    used[v] = true;
+    component.push_back(v);
+
+    for (auto u : adj_rev[v])
+        if (!used[u])
+            dfs2(u);
+}
+
+int main() {
+    int n;
+    // ... read n ...
+
+    for (;;) {
+        int a, b;
+        // ... read next directed edge (a,b) ...
+        adj[a].push_back(b);
+        adj_rev[b].push_back(a);
+    }
+
+    used.assign(n, false);
+
+    for (int i = 0; i < n; i++)
+        if (!used[i])
+            dfs1(i);
+
+    used.assign(n, false);
+    reverse(order.begin(), order.end());
+
+    for (auto v : order)
+        if (!used[v]) {
+            dfs2 (v);
+
+            // ... processing next component ...
+
+            component.clear();
+        }
+}
+```
+
+### Dijkstra
+
+Finds shortest paths from a source, given a weighted graph with non-negative weights. 
+
+Time Complexity : $O(E Log V)$
+
+```c++
+const int INF = 1000000000;
+vector<vector<pair<int, int>>> adj;
+
+void dijkstra(int s, vector<int> & d, vector<int> & p) {
+    int n = adj.size();
+    d.assign(n, INF);
+    p.assign(n, -1);
+
+    d[s] = 0;
+    set<pair<int, int>> q;
+    q.insert({0, s});
+    while (!q.empty()) {
+        int v = q.begin()->second;
+        q.erase(q.begin());
+
+        for (auto edge : adj[v]) {
+            int to = edge.first;
+            int len = edge.second;
+
+            if (d[v] + len < d[to]) {
+                q.erase({d[to], to});
+                d[to] = d[v] + len;
+                p[to] = v;
+                q.insert({d[to], to});
+            }
+        }
+    }
+}
+```
+
+### Bellman-Ford
+
+Single source shortest paths in a weighted graph with negative weights
+
+```c++
+struct edge
+{
+    int a, b, cost;
+};
+
+int n, m, v;
+vector<edge> e;
+const int INF = 1000000000;
+
+void solve()
+{
+    vector<int> d (n, INF);
+    d[v] = 0;
+    for (int i=0; i<n-1; ++i)
+        for (int j=0; j<m; ++j)
+            if (d[e[j].a] < INF)
+                d[e[j].b] = min (d[e[j].b], d[e[j].a] + e[j].cost);
+    // display d, for example, on the screen
+}
+```
+
+### 0-1 BFS
+
+Single source shortest paths in case the weight of every edge in a weighted graph is either 0 or 1.
+
+Time Complexity : $O(V + E)$.
+
+```c++
+vector<int> d(n, INF);
+d[s] = 0;
+deque<int> q;
+q.push_front(s);
+while (!q.empty()) {
+    int v = q.front();
+    q.pop_front();
+    for (auto edge : adj[v]) {
+        int u = edge.first;
+        int w = edge.second;
+        if (d[v] + w < d[u]) {
+            d[u] = d[v] + w;
+            if (w == 1)
+                q.push_back(u);
+            else
+                q.push_front(u);
+        }
+    }
+}
+```
+
+### Floyd-Warshall Algorithm
+
+Given a directed or an undirected weighted graph $G$ with $n$ vertices. The task is to find the length of the shortest path $d_{i,j}$ between each pair of vertices $i$ and $j$.
+
+The graph may have negative weight edges, but no negative weight cycles.
+
+Time Complexity : $O(N^3)$.
+
+Initially set the $d[][]$ matrix to the initial weights of the edges, $d[i][i] = 0$ and the rest to $INF$.
+
+```c++
+for (int k = 0; k < n; ++k) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            d[i][j] = min(d[i][j], d[i][k] + d[k][j]); 
+        }
     }
 }
 ```
