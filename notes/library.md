@@ -5,15 +5,18 @@
 
 - [Reference Library for ICPC](#reference-library-for-icpc)
   - [Important Stuff](#important-stuff)
-    - [Template](#template)
+    - [Extended Template](#extended-template)
     - [Binary Exponentiation](#binary-exponentiation)
+    - [Binary Search](#binary-search)
     - [Y Combinator](#y-combinator)
     - [Pragma](#pragma)
     - [Faster unordered_map](#faster-unordered_map)
     - [Random number Generator](#random-number-generator)
     - [Ordered Set](#ordered-set)
     - [Custom Comparators](#custom-comparators)
+    - [BitSet](#bitset)
   - [Reference](#reference)
+    - [Binary Search](#binary-search-1)
     - [Compute GCD using Euclidean Algorithm](#compute-gcd-using-euclidean-algorithm)
     - [Finding $N^{th}$ Fibonacci Number in $O(Log N)$](#finding-nth-fibonacci-number-in-olog-n)
     - [Sieve of Eratosthenes](#sieve-of-eratosthenes)
@@ -47,7 +50,7 @@
 
 ## Important Stuff
 
-### Template
+### Extended Template
 Snippet : cppbasic
 ```c++
 #include <bits/stdc++.h>
@@ -56,6 +59,8 @@ using namespace std;
 
 const int N = 200100;
 const int MOD = (int)1E9 + 7;
+const int INF = (int)9E18;
+const char nl = '\n';
 
 int32_t main() {
     ios::sync_with_stdio(false);
@@ -64,7 +69,7 @@ int32_t main() {
     
     
     return 0;
-}
+}   
 ```
 
 ### Binary Exponentiation
@@ -80,6 +85,10 @@ int binpow(int a, int b) {
     return res % MOD;
 }
 ```
+
+### Binary Search
+
+.
 
 ### Y Combinator
 Snippet : ycomb
@@ -210,8 +219,57 @@ std::set<int, decltype(cmp)> s;
 // std::set<int, decltype(cmp)> s(cmp); 
 ```
 
+### BitSet
+
+```c++
+bitset <100> a, b;
+
+a.set(0); // Set 0th bit, i.e., LSB
+a.set(); // Set all bits
+a.reset(3); // Reset 3rd bit
+
+cout << a << '\n'; // output entire bitset
+
+cout << a[3] << '\n'; // output 3rd element 
+
+cout << a.any() << '\n'; // a has any bit set
+
+a.flip(9); // flips the bit
+
+b = (a | b) >> 2; // Can perform any bitwise ops fast
+b >>= 2;
+cout << ~b << '\n';
+
+cout << b.count() << '\n'; // popcount
+```
 
 ## Reference
+
+### Binary Search
+```c++
+int ans, l, r, mid;
+
+bool f(int k) {
+    
+}
+
+int binsearch() {
+    l = 0, r = 1, ans = 0; // Make sure r doesn't segfault
+    while (f(r))           // Sometimes, !f(r)
+        r *= 2;
+    while (l <= r) {
+        mid = l + (r - l) / 2;
+        if (f(mid)) {
+            ans = mid;
+            l = mid + 1; // Sometimes, r = mid - 1
+        }
+        else {
+            r = mid - 1;
+        }
+    }
+    return ans;
+}
+```
 
 ### Compute GCD using Euclidean Algorithm
 
