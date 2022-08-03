@@ -48,7 +48,7 @@ Trie* root;
 Insertion operation in a Trie.
 ```c++
 void insert(string word) {
-    Trie* temp = root;
+    Trie* temp = root;  
     for(auto ch : word) {
         int b = ch - 'a';
         if(!temp->bit[b]) {
