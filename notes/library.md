@@ -208,7 +208,7 @@ bool compare(T a, T b) {
 
 }
 
-priority_queue<T, vector<T>, function<bool(T, T)>> pq(comapre);
+priority_queue<T, vector<T>, function<bool(T, T)>> pq(compare);
 ```
 
 Set.
